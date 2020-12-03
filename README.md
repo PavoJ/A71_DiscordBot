@@ -6,6 +6,4 @@ Il bot ufficiale di Area 71, finanziato economicamente dall'inimitabile e unico 
 <li>Per visualizzare questo progetto devi scaricare </li>
 <li>Stai attento a non bagnarti i pantaloni mentre leggi questa opera di codice</li>
 </ol>
-//[foo]: <> "title"
-
-//[foo]
+[ciao](https://www.google.com/)
