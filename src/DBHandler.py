@@ -6,28 +6,65 @@ load_dotenv()
 
 class DBHandler:
     def __init__(self):
-        self.__connection = mariadb.connect(
-            user     = os.getenv("DBUSER"),
+        self._connection = mariadb.connect(
+            user     = os.getenv("DBUSERNAME"),
             password = os.getenv("DBUSERPASS"),
             database = os.getenv("DBNAME"),
             host     = os.getenv("DBHOST"))
 
-        self.__cursor = self.__connection.cursor()
-        self.__cursor.execute("SELECT * FROM menu")
-        print(self.__cursor.fetchall())
-
         return
 
     def __del__(self):
-        self.__cursor.close()
-        self.__connection.close()
+        self._connection.close()
         return
 
-    def getEntry(self):
-        pass
+    def getConnection(self):
+        return self._connection
 
-    def addEntry(self):
-        pass
+    def getEntry(self, tableName, entryName, name):
+        cur = self._connection.cursor(named_tuple=True)
+        cur.execute(f"SELECT * FROM {tableName} WHERE {entryName}={name} LIMIT 1; ")
+
+        ret = cur.fetchone()
+        cur.close()
+        return ret
+
+    def changeEntry(self, table, idName, id, colName, colValue):
+        cur = self._connection.cursor()
+        cur.execute(f"UPDATE {table} SET {colName}={colValue} WHERE {idName}={id}")
+
+        self._connection.commit()
+        return
+
+    def getTable(self, tableName) -> int:
+        cur  = self._connection.cursor(named_tuple=True)
+        cur.execute(f"SELECT * FROM {tableName}")
+
+        ret = cur.fetchall()
+
+        cur.close()
+        return ret
+
+    def addEntry(self, tableName, entryNums, entries):
+        cur = self._connection.cursor()
+
+        parsedEntry = ""
+        parsedEntryTypes = ""
+
+        cnt = 0
+        for x in range(0, len(entries)):
+            cnt = cnt+1
+            parsedEntry      = parsedEntry      + f"'{entries[x]}'"
+            parsedEntryTypes = parsedEntryTypes + f"{entryNums[x]}"
+
+            if x != len(entries)-1:
+                parsedEntry = parsedEntry+", "
+                parsedEntryTypes = parsedEntryTypes+", "
+
+        cur.execute(f"INSERT INTO {tableName} ({parsedEntryTypes}) VALUES ({parsedEntry})")
+
+        self._connection.commit()
+        return
 
     def remEntry(self):
         pass
