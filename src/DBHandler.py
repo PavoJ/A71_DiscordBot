@@ -45,7 +45,11 @@ class DBHandler:
         cur.close()
         return ret
 
-    def addEntry(self, tableName, entryNums, entries):
+    '''
+        adds an entry to the specified table, containing entries labeled colNames. Returns the added entry
+        CAREFUL: for addEntry to return the added entry, the first colName entries pair must be unique
+    '''
+    def addEntry(self, tableName, colNames, entries):
         cur = self._connection.cursor()
 
         parsedEntry = ""
@@ -55,16 +59,17 @@ class DBHandler:
         for x in range(0, len(entries)):
             cnt = cnt+1
             parsedEntry      = parsedEntry      + f"'{entries[x]}'"
-            parsedEntryTypes = parsedEntryTypes + f"{entryNums[x]}"
+            parsedEntryTypes = parsedEntryTypes + f"{colNames[x]}"
 
             if x != len(entries)-1:
                 parsedEntry = parsedEntry+", "
                 parsedEntryTypes = parsedEntryTypes+", "
 
         cur.execute(f"INSERT INTO {tableName} ({parsedEntryTypes}) VALUES ({parsedEntry})")
-
         self._connection.commit()
-        return
+        cur.close()
+
+        return self.getEntry(tableName, colNames[0], entries[0])
 
     def remEntry(self):
         pass
