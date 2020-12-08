@@ -58,22 +58,21 @@ class DiscordBot:
         # async def crisi_esistenziale(ctx):
         #     await ctx.send("sì, ed è tutta colpa tua")
 
-        @self._bot.command(name='frammenti mostra')
-        async def points_show(ctx, what, user):
-            if what == 'mostra':
-                entry = self._database.getEntry("userdata", "user", f"'{user}'")
-                member = ctx.guild.get_member(user)
+        # @self._bot.command(name='frammenti mostra')
+        # async def points_show(ctx, what, user):
+        #     if what == 'mostra':
+        #         entry = self._database.getEntry("userdata", "user", f"'{user}'")
+        #         member = ctx.guild.get_member(user)
+        #
+        #         if entry is None and member is not None:
+        #             entry = self._database.addEntry("userdata", ["user"], [user])
+        #     if entry is None and member is None:
+        #         await ctx.send("l'utente imesso non esiste")
+        #     else:
+        #         await ctx.send(f"{member.mention} ha {getattr(entry, 'frammenti')} frammenti")
 
-                if entry is None and member is not None:
-                    entry = self._database.addEntry("userdata", ["user"], [user])
-            if entry is None and member is None:
-                await ctx.send("l'utente imesso non esiste")
-            else:
-                await ctx.send(f"{member.mention} ha {getattr(entry, 'frammenti')} frammenti")
-
-        @self._bot.command(name='frammenti')
-        async def points_add(ctx, what, user=None, amount=None):
-            if what == "mostra":
+        async def point_mod(currency, ctx, what, user, amount):
+            if what == "show":
 
                 if user is None:
                     user = ctx.author.id
@@ -87,36 +86,56 @@ class DiscordBot:
                 if member is None:
                     await ctx.send("L'utente non è in questo server o non esiste")
 
-                entry = self._database.getEntry("userdata", "user", user)
+                entry = self._database.getEntry("userdata", "userID", user)
                 if entry is None:
-                    entry = self._database.addEntry("userdata", ["user"], [user])
+                    entry = self._database.addEntry("userdata", ["userID"], [user])
 
-                await ctx.send(f"{member.mention} ha {getattr(entry, 'frammenti')} frammenti")
+                await ctx.send(f"{member.mention} ha {getattr(entry, currency)} {currency}")
 
-            elif (what == "aggiungi" or what == "rimuovi") and (user and amount is not None):
+            elif (what == "add" or what == "remove") and (user and amount is not None):
 
                 amount = int(amount)
-                if what == "rimuovi":
+                if what == "remove":
                     amount = -amount
 
                 if has_perms(ctx.author):
                     user = int(user[3:-1])  # User ID
 
-                    entry = self._database.getEntry("userdata", "user", user)
+                    entry = self._database.getEntry("userdata", "userID", user)
                     member = ctx.guild.get_member(user)
 
                     if entry is None and member is not None:
-                        entry = self._database.addEntry("userdata", ["user", "frammenti"], [user, amount])
+                        entry = self._database.addEntry("userdata", ["userID", currency], [user, amount])
 
                     else:
                         self._database.changeEntry(
                             "userdata",
-                            "user", getattr(entry, "user"),
-                            "frammenti", int(getattr(entry, "frammenti")) + amount)
+                            "userID", getattr(entry, "userID"),
+                            currency, int(getattr(entry, currency)) + amount)
 
                     await ctx.send("comando eseguito con successo")
                 else:
                     await ctx.send("non hai i permessi per usare questo comando")
 
-            else:#wrong usage
+            else:  # wrong usage
                 await ctx.send("Utilizzo del comando improprio.")
+
+        @self._bot.command(name='event_currency')
+        async def event_currency(ctx, what, user=None, amount=None):
+            await point_mod("valuta_evento", ctx, what, user, amount)
+
+        @self._bot.command(name="fragments")
+        async def fragment_currency(ctx, what, user=None, amount=None):
+            await point_mod("frammenti", ctx, what, user, amount)
+
+        @self._bot.command(name="event")
+        async def event_manager(ctx, what):
+            if what == "reset":
+                for member in self._database.getTable("userdata"):
+                    if member.valuta_evento != 0:
+                        self._database.changeEntry("userdata", "userID", member.userID,
+                            "frammenti", member.frammenti+member.valuta_evento)
+                        self._database.changeEntry("userdata", "userID", member.userID,
+                            "valuta_evento", 0)
+
+            await ctx.send("L'evento è stato resettato")
