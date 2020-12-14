@@ -4,6 +4,7 @@ import os
 
 load_dotenv()
 
+
 class DBHandler:
     def __init__(self):
         self._connection = mariadb.connect(
@@ -21,24 +22,24 @@ class DBHandler:
     def getConnection(self):
         return self._connection
 
-    def getEntry(self, tableName, entryName, name):
+    def getEntry(self, tablename, entryname, name):
         cur = self._connection.cursor(named_tuple=True)
-        cur.execute(f"SELECT * FROM {tableName} WHERE {entryName}={name} LIMIT 1; ")
+        cur.execute(f"SELECT * FROM {tablename} WHERE {entryname}={name} LIMIT 1;")
 
         ret = cur.fetchone()
         cur.close()
         return ret
 
-    def changeEntry(self, table, idName, id, colName, colValue):
+    def changeEntry(self, table, idname, id, colname, colvalue):
         cur = self._connection.cursor()
-        cur.execute(f"UPDATE {table} SET {colName}={colValue} WHERE {idName}={id}")
+        cur.execute(f"UPDATE {table} SET {colname}={colvalue} WHERE {idname}={id}")
 
         self._connection.commit()
         return
 
-    def getTable(self, tableName) -> int:
+    def getTable(self, tablename) -> int:
         cur  = self._connection.cursor(named_tuple=True)
-        cur.execute(f"SELECT * FROM {tableName}")
+        cur.execute(f"SELECT * FROM {tablename}")
 
         ret = cur.fetchall()
 
@@ -49,27 +50,27 @@ class DBHandler:
         adds an entry to the specified table, containing entries labeled colNames. Returns the added entry
         CAREFUL: for addEntry to return the added entry, the first colName entries pair must be unique
     '''
-    def addEntry(self, tableName, colNames, entries):
+    def addEntry(self, tablename, colnames, entries):
         cur = self._connection.cursor()
 
-        parsedEntry = ""
-        parsedEntryTypes = ""
+        parsed_entry = ""
+        parsed_entry_types = ""
 
         cnt = 0
         for x in range(0, len(entries)):
             cnt = cnt+1
-            parsedEntry      = parsedEntry      + f"'{entries[x]}'"
-            parsedEntryTypes = parsedEntryTypes + f"{colNames[x]}"
+            parsed_entry      = parsed_entry      + f"'{entries[x]}'"
+            parsed_entry_types = parsed_entry_types + f"{colnames[x]}"
 
             if x != len(entries)-1:
-                parsedEntry = parsedEntry+", "
-                parsedEntryTypes = parsedEntryTypes+", "
+                parsed_entry = parsed_entry+", "
+                parsed_entry_types = parsed_entry_types+", "
 
-        cur.execute(f"INSERT INTO {tableName} ({parsedEntryTypes}) VALUES ({parsedEntry})")
+        cur.execute(f"INSERT INTO {tablename} ({parsed_entry_types}) VALUES ({parsed_entry})")
         self._connection.commit()
         cur.close()
 
-        return self.getEntry(tableName, colNames[0], entries[0])
+        return self.getEntry(tablename, colnames[0], entries[0])
 
     def remEntry(self):
         pass
