@@ -48,7 +48,7 @@ class DiscordBot:
     def _load_commands(self):
         # self._bot.remove_command('help')
         CurrencyCommands.load(self)
-        #EventCommands.load(self)
+        EventCommands.load(self)
 
         @self._bot.event
         async def on_ready():

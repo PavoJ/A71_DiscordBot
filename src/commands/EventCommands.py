@@ -1,4 +1,5 @@
 from commands import permscheck
+from commands import CurrencyCommands
 
 
 def load(bot):
@@ -32,16 +33,33 @@ def load(bot):
     @dbot.event
     async def on_raw_reaction_add(p):
         if bot.reactionSetup is not None and bot.reactionSetup["userid"] == p.user_id:
+            database.addEntry(
+                "reaction_messages",
+                ["messageID", "createdBy", "channelID", "emojiID"],
+                [p.message_id, p.user_id, p.channel_id, p.emoji.id]
+            )
+
+            msgctx = bot.reactionSetup["ctx"]
+            bot.reactionSetup = None
+            await msgctx.send("reazione aggiunta")
+
+        # se un utente ha reagito su un messaggio presente nel database appostito
+        elif database.getEntry("reaction_messages", messageID=p.message_id, emojiID=p.emoji.id) is not None:
+            # controllo se ha già reagito prima d'ora
+            if database.getEntry("member_reactions", messageID=p.message_id) is None:
                 database.addEntry(
-                    "reaction_messages",
-                    ["messageID", "createdBy", "channelID", "emojiName"],
-                    [p.message_id, p.user_id, p.channel_id, p.emoji.name]
+                    "member_reactions",
+                    ["messageID", "userID", "reactionID"],
+                    [p.message_id, p.user_id, p.emoji.id]
                 )
-                
-                msgctx = bot.reactionSetup["ctx"]
-                bot.reactionSetup = None
-                await msgctx.send("reazione aggiunta")
-        #elif database.getEntry("member_reactions", p.)
+                player_entry = database.getEntry("userdata", userID=p.user_id)
+                if player_entry is None:
+                    player_entry = database.addEntry("userdata", ["userID"], [p.user_id])
+
+                database.changeEntry(
+                    "userdata",
+                    "userID", p.user_id,
+                    "valuta_evento", player_entry.valuta_evento+1)
 
     async def reaction_set(ctx, userid):
         bot.reactionSetup = {

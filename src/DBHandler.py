@@ -22,20 +22,34 @@ class DBHandler:
     def getConnection(self):
         return self._connection
 
-    def getEntry(self, tablename, entryname, name):
+    def getEntry(self, tablename, **values):
         cur = self._connection.cursor(named_tuple=True)
-        cur.execute(f"SELECT * FROM {tablename} WHERE {entryname}={name} LIMIT 1;")
+
+        to_search = ""
+        cnt = 1
+        for col, val in values.items():
+            to_search = to_search+f"{col}='{val}'"
+            if cnt != len(values):
+                to_search = to_search+" AND "
+            cnt = cnt+1
+
+        cur.execute(f"SELECT * FROM {tablename} WHERE {to_search} LIMIT 1;")
 
         ret = cur.fetchone()
         cur.close()
         return ret
 
-    def changeEntry(self, table, idname, id, colname, colvalue):
-        cur = self._connection.cursor()
-        cur.execute(f"UPDATE {table} SET {colname}={colvalue} WHERE {idname}={id}")
+    # changes an existing entry
+    def changeEntry(self, tableName, idname, id, colname, colvalue) -> bool:
+        found_entry = self.getEntry(tableName, **{idname: id}) is not None
 
-        self._connection.commit()
-        return
+        if found_entry:
+            cur = self._connection.cursor()
+            cur.execute(f"UPDATE {tableName} SET {colname}={colvalue} WHERE {idname}={id}")
+
+            self._connection.commit()
+
+        return found_entry
 
     def getTable(self, tablename) -> int:
         cur  = self._connection.cursor(named_tuple=True)
@@ -66,11 +80,24 @@ class DBHandler:
                 parsed_entry = parsed_entry+", "
                 parsed_entry_types = parsed_entry_types+", "
 
-        cur.execute(f"INSERT INTO {tablename} ({parsed_entry_types}) VALUES ({parsed_entry})")
+        has_failed = False
+        try:
+            cur.execute(f"INSERT INTO {tablename} ({parsed_entry_types}) VALUES ({parsed_entry})")
+        except mariadb.IntegrityError as e:
+            print(e)
+            has_failed = True
+
         self._connection.commit()
         cur.close()
 
-        return self.getEntry(tablename, colnames[0], entries[0])
+        kwargs = {}
+        for colC in range(len(colnames)):
+            kwargs[colnames[colC]] = entries[colC]
+
+        if has_failed:
+            return None
+        else:
+            return self.getEntry(tablename, **kwargs)
 
     def remEntry(self):
         pass

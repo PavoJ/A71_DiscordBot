@@ -1,5 +1,6 @@
 from commands import permscheck
 
+#pcommands = None
 
 def load(bot):
     dbot = bot.getBot()
@@ -46,7 +47,7 @@ def load(bot):
         if member is None or errorHappened:
             await ctx.send("L'utente non è in questo server o non esiste")
 
-        entry = database.getEntry("userdata", "userID", user)
+        entry = database.getEntry("userdata", userID=user)
         if entry is None:
             entry = database.addEntry("userdata", ["userID"], [user])
 
@@ -58,15 +59,15 @@ def load(bot):
         for user in users:
             user = int(user[3:-1])
 
-            entry = database.getEntry("userdata", "userID", user)
+            entry = database.getEntry("userdata", userID=user)
             member = ctx.guild.get_member(user)
 
             if entry is None and member is not None:
-                entry = database.addEntry("userdata", ["userID", currency], [user, amount])
+               entry = database.addEntry("userdata", ["userID", currency], [user, amount])
             else:
-                database.changeEntry(
-                    "userdata",
-                    "userID", entry.userID,
-                    currency, int(getattr(entry, currency)) + amount)
+               database.changeEntry(
+                   "userdata",
+                   "userID", entry.userID,
+                   currency, int(getattr(entry, currency)) + amount)
 
         await ctx.send("comando eseguito con successo")
