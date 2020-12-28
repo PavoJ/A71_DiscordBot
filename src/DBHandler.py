@@ -40,20 +40,20 @@ class DBHandler:
         return ret
 
     # changes an existing entry
-    def changeEntry(self, tableName, idname, id, colname, colvalue) -> bool:
-        found_entry = self.getEntry(tableName, **{idname: id}) is not None
+    def changeEntry(self, table_name, idname, id, colname, colvalue) -> bool:
+        found_entry = self.getEntry(table_name, **{idname: id}) is not None
 
         if found_entry:
             cur = self._connection.cursor()
-            cur.execute(f"UPDATE {tableName} SET {colname}={colvalue} WHERE {idname}={id}")
+            cur.execute(f"UPDATE {table_name} SET {colname}={colvalue} WHERE {idname}={id}")
 
             self._connection.commit()
 
         return found_entry
 
-    def getTable(self, tablename) -> int:
+    def getTable(self, table_name) -> int:
         cur  = self._connection.cursor(named_tuple=True)
-        cur.execute(f"SELECT * FROM {tablename}")
+        cur.execute(f"SELECT * FROM {table_name}")
 
         ret = cur.fetchall()
 

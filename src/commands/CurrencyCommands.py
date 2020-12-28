@@ -6,20 +6,22 @@ def load(bot):
     dbot = bot.getBot()
     database = bot.getDB()
 
-    @dbot.command(name='event_currency')
+    #todo migliorare il codice della traduzione
+    @dbot.command(name='event_currency', aliases=['valuta_evento'])
     async def event_currency(ctx, what, amount: int = None, *users):
         await points_commands(ctx, "valuta_evento", what, users, amount)
 
-    @dbot.command(name="fragments")
+    @dbot.command(name='shards', aliases=['frammenti'])
     async def fragment_currency(ctx, what, amount: int = None, *users):
         await points_commands(ctx, "frammenti", what, users, amount)
 
     async def points_commands(ctx, currency, what, users, amount: int):
-        if what == "show":
+        if what == "show" or what == "mostra":
             await points_show(ctx, users, currency)
 
-        elif (what == "add" or what == "remove") and (amount is not None) and len(users) > 0:
-            if what == "remove":
+        elif ((what == "add" or what == "aggiungi") or (what == "remove" or what == "rimuovi")) and \
+                (amount is not None) and len(users) > 0:
+            if what == "remove" or what == "rimuovi":
                 amount = -amount
 
             await points_mod(ctx, currency, users, amount)
