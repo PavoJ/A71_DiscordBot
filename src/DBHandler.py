@@ -13,31 +13,41 @@ class DBHandler:
     def __del__(self):
         return
 
-    def getConnection(self):
-        return self._connection
-
-    @checkConnection
-    def getEntry(self, tablename, **values):
+    def _rawGetEntry(self, tablename, **values):
         cur = self._connection.cursor(named_tuple=True)
 
         to_search = ""
         cnt = 1
         for col, val in values.items():
-            to_search = to_search+f"{col}='{val}'"
+            to_search = to_search + f"{col}='{val}'"
             if cnt != len(values):
-                to_search = to_search+" AND "
-            cnt = cnt+1
+                to_search = to_search + " AND "
+            cnt = cnt + 1
 
-        cur.execute(f"SELECT * FROM {tablename} WHERE {to_search} LIMIT 1;")
+        cur.execute(f"SELECT * FROM {tablename} WHERE {to_search};")
+        return cur
 
+    @checkConnection
+    def getEntry(self, tablename, **values):
+        cur = self._rawGetEntry(tablename, **values)
         ret = cur.fetchone()
         cur.close()
+
         return ret
+
+    @checkConnection
+    def getEntries(self, tablename, **values):
+        cur = self._rawGetEntry(tablename, **values)
+        ret = cur.fetchall()
+        cur.close()
+
+        return ret
+
 
     # changes an existing entry
     @checkConnection
     def changeEntry(self, table_name, idname, id, colname, colvalue) -> bool:
-        found_entry = self.getEntry(table_name, **{idname: id}) is not None
+        found_entry = DBHandler.getEntry(self, table_name, **{idname: id}) is not None
 
         if found_entry:
             cur = self._connection.cursor()
@@ -48,7 +58,7 @@ class DBHandler:
         return found_entry
 
     @checkConnection
-    def getTable(self, table_name) -> int:
+    def getTable(self, table_name):
         cur  = self._connection.cursor(named_tuple=True)
         cur.execute(f"SELECT * FROM {table_name}")
 
@@ -95,8 +105,9 @@ class DBHandler:
         if has_failed:
             return None
         else:
-            return self.getEntry(tablename, **kwargs)
+            return DBHandler.getEntry(self, tablename, **kwargs)
 
+    # not implemented yet
     @checkConnection
     def remEntry(self):
         pass

@@ -4,7 +4,7 @@ import DBHandler
 
 def main():
     dsBot = DiscordBot.DiscordBot()
-    dsBot.connect()
+    dsBot.dsbotstart()
 
 
 if __name__ == '__main__':

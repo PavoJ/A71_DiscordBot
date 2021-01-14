@@ -1,38 +1,46 @@
-from commands import permscheck
+from discord.ext import commands
+
+from DBHandler import DBHandler
+from commands.wrappers import permscheck
 
 
-def load(bot):
-    dbot = bot.getBot()
-    database = bot.getDB()
+class CurrencyCommands(commands.Cog):
+    def __init__(self):
+        self.database = DBHandler()
 
-    #todo migliorare il codice della traduzione
-    @dbot.command(name='event_currency', aliases=['valuta_evento'])
-    async def event_currency(ctx, what, amount = None, *users):
-        await points_commands(ctx, "valuta_evento", what, users, amount)
+    # todo migliorare il codice della traduzione
+    @commands.command(name='event_currency', aliases=['valuta_evento'],
+                      help="visualizza la valuta dell'evento")
+    async def event_currency(self, ctx, what, amount=None, *users):
+        await self.points_commands(ctx, "valuta_evento", what, users, amount)
 
-    @dbot.command(name='shards', aliases=['frammenti'])
-    async def fragment_currency(ctx, what, amount = None, *users):
-        await points_commands(ctx, "frammenti", what, users, amount)
+    @commands.command(name='shards', aliases=['frammenti'],
+                      help="visualizza i tuoi frammenti")
+    async def fragment_currency(self, ctx, what, amount=None, *users):
+        await self.points_commands(ctx, "frammenti", what, users, amount)
 
-    async def points_commands(ctx, currency, what, users, amount):
+    async def points_commands(self, ctx, currency, what, users, amount):
         if what == "show" or what == "mostra":
-            await points_show(ctx, amount, currency)
+            await self.points_show(ctx, amount, currency)
         else:
-            amount = int(amount)
+            try:
+                amount = int(amount)
+            except TypeError as e:
+                return
 
             if ((what == "add" or what == "aggiungi") or (what == "remove" or what == "rimuovi")) and \
                     (amount is not None) and len(users) > 0:
                 if what == "remove" or what == "rimuovi":
                     amount = -amount
 
-                await points_mod(ctx, currency, users, amount)
+                await self.points_mod(ctx, currency, users, amount)
 
             else:  # wrong usage
                 # await ctx.send("Utilizzo del comando improprio.")
                 await ctx.send(f"{users}, {amount}")
 
     # shows the points a user currently has
-    async def points_show(ctx, user, currency):
+    async def points_show(self, ctx, user, currency):
         errorHappened = False
 
         member = None
@@ -51,27 +59,27 @@ def load(bot):
             await ctx.send("L'utente non è in questo server o non esiste")
             return
 
-        entry = database.getEntry("userdata", userID=user)
+        entry = self.database.getEntry("userdata", userID=user)
         if entry is None:
-            entry = database.addEntry("userdata", ["userID"], [user])
+            entry = self.database.addEntry("userdata", ["userID"], [user])
 
         await ctx.send(f"{member.mention} ha {getattr(entry, currency)} {currency}")
 
     # adds or removes a type of currency from a specified user
     @permscheck.has_perms
-    async def points_mod(ctx, currency, users, amount):
+    async def points_mod(self, ctx, currency, users, amount):
         for user in users:
             user = int(user[3:-1])
 
-            entry = database.getEntry("userdata", userID=user)
+            entry = self.database.getEntry("userdata", userID=user)
             member = ctx.guild.get_member(user)
 
             if entry is None and member is not None:
-               entry = database.addEntry("userdata", ["userID", currency], [user, amount])
+                entry = self.database.addEntry("userdata", ["userID", currency], [user, amount])
             else:
-               database.changeEntry(
-                   "userdata",
-                   "userID", entry.userID,
-                   currency, int(getattr(entry, currency)) + amount)
+                self.database.changeEntry(
+                    "userdata",
+                    "userID", entry.userID,
+                    currency, int(getattr(entry, currency)) + amount)
 
         await ctx.send("comando eseguito con successo")
