@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 
 from RPGFunctionality.Player import Player
@@ -42,12 +43,20 @@ class RPGCommands(commands.Cog):
                 eligible = True
 
                 if reaction.emoji == '⬅':
-                    await reaction.remove(user)
+                    try:
+                        await reaction.remove(user)
+                    except discord.DiscordException as e:
+                        print(f"error: {e}")
+
                     if request["invPage"] > 0:
                         request["invPage"] = request["invPage"]-1
 
                 elif reaction.emoji == '➡':
-                    await reaction.remove(user)
+                    try:
+                        await reaction.remove(user)
+                    except discord.DiscordException as e:
+                        print(f"error: {e}")
+
                     if len(pRequester.inventory)/pRequester.pagelen > request["invPage"]+1:
                         request["invPage"] = request["invPage"]+1
 
