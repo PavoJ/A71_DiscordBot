@@ -5,7 +5,7 @@ load_dotenv()
 
 # checks if the given user has an administrative role (admin or founder role)
 def has_perms(func):
-    async def wrapper(ctx, *args):
+    async def wrapper(self, ctx, *args):
         is_authorized = False
         roles = ctx.author.roles
 
@@ -15,7 +15,7 @@ def has_perms(func):
                 is_authorized = True
 
         if is_authorized:
-            await func(ctx, *args)
+            await func(self, ctx, *args)
         else:
             await ctx.send("non hai i permessi per eseguire questo comando.")
 
