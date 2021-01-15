@@ -59,6 +59,7 @@ class RPGCommands(commands.Cog):
 
         if eligible:
             page = request["requester"]["player"].getInvPage(request["invPage"])
+            print(page)
             await request["message"].edit(content=page)
 
         return
