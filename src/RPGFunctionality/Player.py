@@ -46,6 +46,9 @@ class Player:
             retstr = retstr + str(itemindex + 1) + ". " + \
                     item.name + " (" + item.rarity + ")" + "\n"
 
+        if len(self.inventory) == 0:
+            retstr = "Non hai oggetti nell'inventario. è ora di grindare!"
+
         return retstr
 
     '''

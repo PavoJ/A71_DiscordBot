@@ -18,32 +18,40 @@ class RPGCommands(commands.Cog):
                 await ctx.send(pRequester.getItem(n_obj))
             else:
                 message = await ctx.send(pRequester.getInvPage(0))
-                await message.add_reaction('⬅')
-                await message.add_reaction('➡')
 
-                invreq = {"requester": {"user": ctx.author, "player": pRequester}, "message": message, "invPage": 0}
+                if len(pRequester.inventory) != 0:
+                    await message.add_reaction('⬅')
+                    await message.add_reaction('➡')
 
-                # to prevent memory leaks
-                if len(self.invList) > 100:
-                    self.invList = list()
-                self.invList.append(invreq)
+                    invreq = {"requester": {"user": ctx.author, "player": pRequester}, "message": message, "invPage": 0}
+
+                    # to prevent memory leaks
+                    if len(self.invList) > 100:
+                        self.invList = list()
+                    self.invList.append(invreq)
 
     # for scrolling through inventory pages
     @commands.Cog.listener()
-    async def on_raw_reaction_add(self, p):
+    async def on_reaction_add(self, reaction, user):
         eligible = False
         request = None
 
         for r in self.invList:
-            if p.message_id == r["message"].id and p.user_id == r["requester"]["user"].id:
+            if reaction.message.id == r["message"].id and user.id == r["requester"]["user"].id:
                 request = r
                 pRequester = request["requester"]["player"]
                 eligible = True
 
-                if p.emoji.name == '⬅' and request["invPage"] > 0:
-                    request["invPage"] = request["invPage"]-1
-                elif p.emoji.name == '➡' and len(pRequester.inventory)/pRequester.pagelen > request["invPage"]+1:
-                    request["invPage"] = request["invPage"]+1
+                if reaction.emoji == '⬅':
+                    await reaction.remove(user)
+                    if request["invPage"] > 0:
+                        request["invPage"] = request["invPage"]-1
+
+                elif reaction.emoji == '➡':
+                    await reaction.remove(user)
+                    if len(pRequester.inventory)/pRequester.pagelen > request["invPage"]+1:
+                        request["invPage"] = request["invPage"]+1
+
                 else:
                     eligible = False
 
