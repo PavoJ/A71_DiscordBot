@@ -18,20 +18,28 @@ class DBHandler:
 
         to_search = ""
         cnt = 1
+
         for col, val in values.items():
             to_search = to_search + f"{col}='{val}'"
             if cnt != len(values):
                 to_search = to_search + " AND "
             cnt = cnt + 1
 
-        cur.execute(f"SELECT * FROM {tablename} WHERE {to_search};")
+        try:
+            cur.execute(f"SELECT * FROM {tablename} WHERE {to_search};")
+        except mariadb.Error as e:
+            print(f"error: {e}")
+            cur = None
+
         return cur
 
     @checkConnection
     def getEntry(self, tablename, **values):
         cur = self._rawGetEntry(tablename, **values)
-        ret = cur.fetchone()
-        cur.close()
+        ret = None
+        if cur is not None:
+            ret = cur.fetchone()
+            cur.close()
 
         return ret
 
