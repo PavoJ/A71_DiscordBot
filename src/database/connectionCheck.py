@@ -13,7 +13,8 @@ def checkConnection(fun):
                 user=os.getenv("DBUSERNAME"),
                 password=os.getenv("DBUSERPASS"),
                 database=os.getenv("DBNAME"),
-                host=os.getenv("DBHOST"))
+                host=os.getenv("DBHOST")
+            )
 
         return_value = fun(self, *args, **kwargs)
 

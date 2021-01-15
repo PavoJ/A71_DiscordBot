@@ -1,6 +1,5 @@
 from discord.ext import commands
 
-from DBHandler import DBHandler
 from RPGFunctionality.Player import Player
 
 

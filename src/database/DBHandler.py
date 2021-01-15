@@ -1,9 +1,10 @@
 import mariadb
 from dotenv import load_dotenv
-from connectionCheck import checkConnection
+from database.connectionCheck import checkConnection
 import os
 
 load_dotenv()
+
 
 class DBHandler:
     def __init__(self):
@@ -24,6 +25,8 @@ class DBHandler:
             if cnt != len(values):
                 to_search = to_search + " AND "
             cnt = cnt + 1
+
+        print(to_search)
 
         try:
             cur.execute(f"SELECT * FROM {tablename} WHERE {to_search};")
@@ -50,7 +53,6 @@ class DBHandler:
         cur.close()
 
         return ret
-
 
     # changes an existing entry
     @checkConnection

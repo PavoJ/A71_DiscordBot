@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from DBHandler import DBHandler
+from database.DBHandler import DBHandler
 from commands.wrappers import permscheck
 
 

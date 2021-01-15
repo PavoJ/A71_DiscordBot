@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from discord.ext import commands
 
 # database management
-import DBHandler
 
 # command sets
 from commands.EventCommands import EventCommands

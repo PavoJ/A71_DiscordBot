@@ -1,5 +1,4 @@
 import DiscordBot
-import DBHandler
 
 
 def main():

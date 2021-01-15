@@ -1,4 +1,4 @@
-from DBHandler import DBHandler
+from database.DBHandler import DBHandler
 
 
 class DBTable(DBHandler):

@@ -1,4 +1,4 @@
-from DBTable import DBTable
+from database.DBTable import DBTable
 from commands.wrappers import aesthetic_discord
 
 
