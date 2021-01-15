@@ -1,14 +1,17 @@
 import mariadb
 from dotenv import load_dotenv
+
+from database import StaticConnection
 from database.connectionCheck import checkConnection
-import os
+
 
 load_dotenv()
 
 
 class DBHandler:
     def __init__(self):
-        self._connection = None
+        self._connection = StaticConnection.connection
+        print(self._connection)
         pass
 
     def __del__(self):
@@ -36,7 +39,6 @@ class DBHandler:
 
         return cur
 
-    @checkConnection
     def getEntry(self, tablename, **values):
         cur = self._rawGetEntry(tablename, **values)
         ret = None
@@ -46,7 +48,6 @@ class DBHandler:
 
         return ret
 
-    @checkConnection
     def getEntries(self, tablename, **values):
         cur = self._rawGetEntry(tablename, **values)
         ret = cur.fetchall()
@@ -55,7 +56,6 @@ class DBHandler:
         return ret
 
     # changes an existing entry
-    @checkConnection
     def changeEntry(self, table_name, idname, id, colname, colvalue) -> bool:
         found_entry = DBHandler.getEntry(self, table_name, **{idname: id}) is not None
 
@@ -67,7 +67,6 @@ class DBHandler:
 
         return found_entry
 
-    @checkConnection
     def getTable(self, table_name):
         cur  = self._connection.cursor(named_tuple=True)
         cur.execute(f"SELECT * FROM {table_name}")
@@ -81,7 +80,6 @@ class DBHandler:
         adds an entry to the specified table, containing entries labeled colNames. Returns the added entry
         CAREFUL: for addEntry to return the added entry, the first colName entries pair must be unique
     '''
-    @checkConnection
     def addEntry(self, tablename, colnames, entries):
         cur = self._connection.cursor()
 
@@ -118,6 +116,5 @@ class DBHandler:
             return DBHandler.getEntry(self, tablename, **kwargs)
 
     # not implemented yet
-    @checkConnection
     def remEntry(self):
         pass

@@ -1,14 +1,12 @@
 import mariadb
 import os
+from dotenv import load_dotenv
 
-class StaticConnection:
-    connection = None
+load_dotenv()
 
-    @staticmethod
-    def initialize_connection():
-        connection = mariadb.connect(
-            user=os.getenv("DBUSERNAME"),
-            password=os.getenv("DBUSERPASS"),
-            database=os.getenv("DBNAME"),
-            host=os.getenv("DBHOST")
-        )
+connection = mariadb.connect(
+    user=os.getenv("DBUSERNAME"),
+    password=os.getenv("DBUSERPASS"),
+    database=os.getenv("DBNAME"),
+    host=os.getenv("DBHOST")
+)
