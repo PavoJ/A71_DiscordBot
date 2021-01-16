@@ -40,7 +40,6 @@ class RPGCommands(commands.Cog):
             if reaction.message.id == r["message"].id and user.id == r["requester"]["user"].id:
                 request = r
                 pRequester = request["requester"]["player"]
-                eligible = True
 
                 if reaction.emoji == '⬅':
                     try:
@@ -50,6 +49,7 @@ class RPGCommands(commands.Cog):
 
                     if request["invPage"] > 0:
                         request["invPage"] = request["invPage"]-1
+                        eligible = True
 
                 elif reaction.emoji == '➡':
                     try:
@@ -57,12 +57,10 @@ class RPGCommands(commands.Cog):
                     except discord.DiscordException as e:
                         print(f"error: {e}")
 
-                    if len(pRequester.inventory)/pRequester.pagelen > request["invPage"]+1:
+                    if len(pRequester.inventory)//pRequester.pagelen+1 > request["invPage"]+1:
                         request["invPage"] = request["invPage"]+1
-
-                else:
-                    eligible = False
-
+                        eligible = True
+            if eligible:
                 break
 
         if eligible:

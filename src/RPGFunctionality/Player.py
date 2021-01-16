@@ -11,6 +11,8 @@ class Player:
         self._userTable = DBTable('player')
         self.userdata = self._userTable.getEntry(playerID=player_id)
 
+        self._item_index = DBTable("items")
+
         if self.userdata is None:
             self._userTable.addEntry(["playerID"], [player_id])
             self.userdata = self._userTable.getEntry(playerID=player_id)
@@ -25,26 +27,24 @@ class Player:
 
     @aesthetic_discord.box
     def getItem(self, item_number) -> str:
-        item_index = DBTable("items")
-        item = item_index.getEntry(ID=self.inventory[item_number - 1].itemID)
+        item = self._item_index.getEntry(ID=self.inventory[item_number - 1].itemID)
 
         return f"{item.name} ({item.rarity}): \n{item.desc} "
 
     @aesthetic_discord.box
     def getInvPage(self, page_number) -> str:
-        items = DBTable("items")
         retstr = ""
 
         at_position = page_number * self.pagelen
-        for itemindex in range(at_position, at_position+self.pagelen):
+        for itemindex in range(at_position, at_position + self.pagelen):
             if itemindex >= len(self.inventory):
                 break
 
             itemrow = self.inventory[itemindex]
-            item = items.getEntry(ID=itemrow.itemID)
+            item = self._item_index.getEntry(ID=itemrow.itemID)
 
             retstr = retstr + str(itemindex + 1) + ". " + \
-                    item.name + " (" + item.rarity + ")" + "\n"
+                item.name + " (" + item.rarity + ")" + "\n"
 
         if len(self.inventory) == 0:
             retstr = "Non hai oggetti nell'inventario. è ora di grindare!"
