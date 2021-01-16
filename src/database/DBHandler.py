@@ -11,7 +11,6 @@ load_dotenv()
 class DBHandler:
     def __init__(self):
         self._connection = StaticConnection.connection
-        print(self._connection)
         pass
 
     def __del__(self):
@@ -28,8 +27,6 @@ class DBHandler:
             if cnt != len(values):
                 to_search = to_search + " AND "
             cnt = cnt + 1
-
-        print(to_search)
 
         try:
             cur.execute(f"SELECT * FROM {tablename} WHERE {to_search};")

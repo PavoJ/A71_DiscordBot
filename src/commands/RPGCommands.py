@@ -23,7 +23,8 @@ class RPGCommands(commands.Cog):
                     await message.add_reaction('⬅')
                     await message.add_reaction('➡')
 
-                    invreq = {"requester": {"user": ctx.author, "player": pRequester}, "message": message, "invPage": 0}
+                    invreq = {"requester": {"user": ctx.author, "player": pRequester},
+                              "message": message, "invPage": 0, "inUse": False}
 
                     # to prevent memory leaks
                     if len(self.invList) > 100:
@@ -37,7 +38,8 @@ class RPGCommands(commands.Cog):
         request = None
 
         for r in self.invList:
-            if reaction.message.id == r["message"].id and user.id == r["requester"]["user"].id:
+            if reaction.message.id == r["message"].id and user.id == r["requester"]["user"].id and not r["inUse"]:
+                r["inUse"] = True
                 request = r
                 pRequester = request["requester"]["player"]
 
@@ -65,7 +67,7 @@ class RPGCommands(commands.Cog):
 
         if eligible:
             page = request["requester"]["player"].getInvPage(request["invPage"])
-            print(page)
             await request["message"].edit(content=page)
+            request["inUse"] = False
 
         return

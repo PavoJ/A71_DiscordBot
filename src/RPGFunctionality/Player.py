@@ -11,7 +11,13 @@ class Player:
         self._userTable = DBTable('player')
         self.userdata = self._userTable.getEntry(playerID=player_id)
 
+        # todo: load the item index in a static way, so more players access the same index
         self._item_index = DBTable("items")
+        self._items = list()
+        itemcnt = 0
+        for ID, name, desc, rarity, value in self._item_index.getTable():
+            self._items.append({"ID": ID, "name": name, "desc": desc, "rarity": rarity, "value": value})
+            itemcnt = itemcnt + 1
 
         if self.userdata is None:
             self._userTable.addEntry(["playerID"], [player_id])
@@ -27,7 +33,7 @@ class Player:
 
     @aesthetic_discord.box
     def getItem(self, item_number) -> str:
-        item = self._item_index.getEntry(ID=self.inventory[item_number - 1].itemID)
+        item = self._items[self.inventory[item_number - 1].itemID]
 
         return f"{item.name} ({item.rarity}): \n{item.desc} "
 
@@ -41,10 +47,10 @@ class Player:
                 break
 
             itemrow = self.inventory[itemindex]
-            item = self._item_index.getEntry(ID=itemrow.itemID)
+            item = self._items[itemrow.itemID-1]
 
             retstr = retstr + str(itemindex + 1) + ". " + \
-                item.name + " (" + item.rarity + ")" + "\n"
+                item["name"] + " (" + item["rarity"] + ")" + "\n"
 
         if len(self.inventory) == 0:
             retstr = "Non hai oggetti nell'inventario. è ora di grindare!"
