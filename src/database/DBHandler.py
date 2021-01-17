@@ -2,7 +2,7 @@ import mariadb
 from dotenv import load_dotenv
 
 from database import StaticConnection
-from database.wrappers.RowToDict import RowToDict
+from database.wrappers.RowToNamedTuple import RowToNamedTuple
 
 
 load_dotenv()
@@ -36,7 +36,7 @@ class DBHandler:
 
         return cur
 
-    @RowToDict
+    @RowToNamedTuple
     def getEntry(self, tablename, **values):
         cur = self._rawGetEntry(tablename, **values)
         ret = None
@@ -47,7 +47,7 @@ class DBHandler:
 
         return ret
 
-    @RowToDict
+    @RowToNamedTuple
     def getEntries(self, tablename, **values):
         cur = self._rawGetEntry(tablename, **values)
         
@@ -68,7 +68,7 @@ class DBHandler:
 
         return found_entry
 
-    @RowToDict
+    @RowToNamedTuple
     def getTable(self, table_name):
         cur  = self._connection.cursor(named_tuple=True)
         cur.execute(f"SELECT * FROM {table_name}")
