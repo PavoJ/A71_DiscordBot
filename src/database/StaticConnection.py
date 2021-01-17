@@ -10,3 +10,4 @@ connection = mariadb.connect(
     database=os.getenv("DBNAME"),
     host=os.getenv("DBHOST")
 )
+connection.auto_reconnect = True

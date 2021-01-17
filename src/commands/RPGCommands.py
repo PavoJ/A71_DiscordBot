@@ -17,7 +17,10 @@ class RPGCommands(commands.Cog):
             if n_obj is not None:
                 await ctx.send(pRequester.getItem(n_obj))
             else:
-                message = await ctx.send(pRequester.getInvPage(0))
+                try:
+                    message = await ctx.send(pRequester.getInvPage(0))
+                except discord.DiscordException as e:
+                    print(f"cannot display inventory: {e}")
 
                 if len(pRequester.inventory) != 0:
                     await message.add_reaction('⬅')
@@ -38,8 +41,7 @@ class RPGCommands(commands.Cog):
         request = None
 
         for r in self.invList:
-            if reaction.message.id == r["message"].id and user.id == r["requester"]["user"].id and not r["inUse"]:
-                r["inUse"] = True
+            if reaction.message.id == r["message"].id and user.id == r["requester"]["user"].id:
                 request = r
                 pRequester = request["requester"]["player"]
 
@@ -62,8 +64,14 @@ class RPGCommands(commands.Cog):
                     if len(pRequester.inventory)//pRequester.pagelen+1 > request["invPage"]+1:
                         request["invPage"] = request["invPage"]+1
                         eligible = True
+
+            if r["inUse"]:
+                eligible = False
+
             if eligible:
+                request["inUse"] = True
                 break
+
 
         if eligible:
             page = request["requester"]["player"].getInvPage(request["invPage"])

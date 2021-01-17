@@ -13,11 +13,12 @@ class Player:
 
         # todo: load the item index in a static way, so more players access the same index
         self._item_index = DBTable("items")
-        self._items = list()
+        self._items = self._item_index.getTable()
+        '''
         itemcnt = 0
         for ID, name, desc, rarity, value in self._item_index.getTable():
             self._items.append({"ID": ID, "name": name, "desc": desc, "rarity": rarity, "value": value})
-            itemcnt = itemcnt + 1
+            itemcnt = itemcnt + 1'''
 
         if self.userdata is None:
             self._userTable.addEntry(["playerID"], [player_id])
