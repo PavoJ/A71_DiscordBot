@@ -21,7 +21,7 @@ def _RowToNamedTuple(rows, cols):
     if type(ret) is list:
         return ret
     else: #if it's a tuple (there is only one row to parse)
-        return ntuple._make(ret)
+        return ntuple._make(*ret)
 
 #wrapper to the _RowToDict(row) function
 def RowToNamedTuple(fun):
