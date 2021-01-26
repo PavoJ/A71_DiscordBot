@@ -34,9 +34,9 @@ class Player:
 
     @aesthetic_discord.box
     def getItem(self, item_number) -> str:
-        item = self._items[self.inventory[item_number - 1].itemID]
+        item = self._items[self.inventory[item_number - 1].itemID-1]
 
-        return f"{item.name} ({item.rarity}): \n{item.desc} "
+        return f"{item.iName} ({item.iRarity}): \n{item.iDesc} "
 
     @aesthetic_discord.box
     def getInvPage(self, page_number) -> str:
@@ -51,7 +51,7 @@ class Player:
             item = self._items[itemrow.itemID-1]
 
             retstr = retstr + str(itemindex + 1) + ". " + \
-                item["name"] + " (" + item["rarity"] + ")" + "\n"
+                item.iName + " (" + item.iRarity + ")x"+ str(itemrow.quantity) + "\n"
 
         if len(self.inventory) == 0:
             retstr = "Non hai oggetti nell'inventario. è ora di grindare!"

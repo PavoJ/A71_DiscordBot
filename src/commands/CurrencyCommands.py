@@ -72,6 +72,8 @@ class CurrencyCommands(commands.Cog):
             user = int(user[3:-1])
 
             entry = self.database.getEntry("userdata", userID=user)
+            print(entry)
+
             member = ctx.guild.get_member(user)
 
             if entry is None and member is not None:
