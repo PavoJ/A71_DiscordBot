@@ -29,6 +29,7 @@ class DiscordBot(commands.Bot):
 
         while True:
             self.run(self._TOKEN)
+            print("bot crashed")
 
     def _load_commands(self):
         # self._bot.remove_command('help')

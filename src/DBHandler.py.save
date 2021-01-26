@@ -1,78 +1,59 @@
 import mariadb
 from dotenv import load_dotenv
-
-from database import StaticConnection
-from database.wrappers.RowToNamedTuple import RowToNamedTuple
-
-
+import os
 
 load_dotenv()
 
 
 class DBHandler:
     def __init__(self):
-        self._connection = StaticConnection.connection
-        pass
+        self._connection = mariadb.connect(
+            user     = os.getenv("DBUSERNAME"),
+            password = os.getenv("DBUSERPASS"),
+            database = os.getenv("DBNAME"),
+            host     = os.getenv("DBHOST"))self._connection.auto_reconnect = True
 
-    def __del__(self):
         return
 
-    def _rawGetEntry(self, tablename, **values):
-        cur = self._connection.cursor()#named_tuple=True)
+    def __del__(self):
+        self._connection.close()
+        return
+
+    def getConnection(self):
+        return self._connection
+
+    def getEntry(self, tablename, **values):
+        cur = self._connection.cursor(named_tuple=True)
 
         to_search = ""
         cnt = 1
-
         for col, val in values.items():
-            to_search = to_search + f"{col}='{val}'"
+            to_search = to_search+f"{col}='{val}'"
             if cnt != len(values):
-                to_search = to_search + " AND "
-            cnt = cnt + 1
+                to_search = to_search+" AND "
+            cnt = cnt+1
 
-        try:
-            cur.execute(f"SELECT * FROM {tablename} WHERE {to_search};")
-        except mariadb.Error as e:
-            print(f"error: {e}")
-            cur = None
+        cur.execute(f"SELECT * FROM {tablename} WHERE {to_search} LIMIT 1;")
 
-        return cur
-
-    @RowToNamedTuple
-    def getEntry(self, tablename, **values):
-        cur = self._rawGetEntry(tablename, **values)
-        ret = None
-
-        if cur is not None:
-            ret = cur.fetchone()
-            cur.close()
-
-        return ret
-
-    @RowToNamedTuple
-    def getEntries(self, tablename, **values):
-        cur = self._rawGetEntry(tablename, **values)
-        
-        ret = cur.fetchall()
+        ret = cur.fetchone()
         cur.close()
-
         return ret
 
     # changes an existing entry
-    def changeEntry(self, table_name, idname, id, colname, colvalue) -> bool:
-        found_entry = DBHandler.getEntry(self, table_name, **{idname: id}) is not None
+    def changeEntry(self, tableName, idname, id, colname, colvalue) -> bool:
+        found_entry = self.getEntry(tableName, **{idname: id}) is not None
 
         if found_entry:
             cur = self._connection.cursor()
-            cur.execute(f"UPDATE {table_name} SET {colname}={colvalue} WHERE {idname}={id}")
+            cur.execute(f"UPDATE {tableName} SET {colname}={colvalue} WHERE {idname}={id}")
 
             self._connection.commit()
 
         return found_entry
 
-    @RowToNamedTuple
-    def getTable(self, table_name):
+    def getTable(self, tablename) -> int:
         cur  = self._connection.cursor(named_tuple=True)
-        cur.execute(f"SELECT * FROM {table_name}")
+        cur.execute(f"SELECT * FROM {tablename}")
 
         ret = cur.fetchall()
 
@@ -116,8 +97,7 @@ class DBHandler:
         if has_failed:
             return None
         else:
-            return DBHandler.getEntry(self, tablename, **kwargs)
+            return self.getEntry(tablename, **kwargs)
 
-    # not implemented yet
     def remEntry(self):
         pass
