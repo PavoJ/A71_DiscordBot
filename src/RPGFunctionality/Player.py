@@ -8,8 +8,8 @@ class Player:
         self.inventory = self._inventoryTable.getEntries(playerID=player_id)
         self.pagelen = 10
 
-        self._userTable = DBTable('player')
-        self.userdata = self._userTable.getEntry(playerID=player_id)
+        self._userTable = DBTable('userdata')
+        self.userdata = self._userTable.getEntry(userID=player_id)
 
         # todo: load the item index in a static way, so more players access the same index
         self._item_index = DBTable("items")
@@ -20,11 +20,11 @@ class Player:
             itemcnt = itemcnt + 1
 
         if self.userdata is None:
-            self._userTable.addEntry(["playerID"], [player_id])
-            self.userdata = self._userTable.getEntry(playerID=player_id)
+            self._userTable.addEntry(["userID"], [player_id])
+            self.userdata = self._userTable.getEntry(userID=player_id)
 
     def addXP(self, qnt):
-        self._userTable.changeEntry("playerID", self.userdata.playerID, "xp", self.userdata.xp + qnt)
+        self._userTable.changeEntry("userID", self.userdata.playerID, "xp", self.userdata.xp + qnt)
         self.userdata = self._userTable.getEntry(playerID=self.userdata.playerID)
 
     def addItem(self, item_id):
@@ -69,4 +69,5 @@ class Player:
         if retstr == "":
             return "non hai oggetti nel tuo inventario. è ora di grindare!"
 
-        return retstr'''
+        return retstr
+    '''

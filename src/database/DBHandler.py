@@ -2,7 +2,6 @@ import mariadb
 from dotenv import load_dotenv
 
 from database import StaticConnection
-from database.connectionCheck import checkConnection
 
 
 load_dotenv()
