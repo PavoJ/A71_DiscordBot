@@ -5,6 +5,7 @@ from database import StaticConnection
 from database.wrappers.RowToNamedTuple import RowToNamedTuple
 
 
+
 load_dotenv()
 
 

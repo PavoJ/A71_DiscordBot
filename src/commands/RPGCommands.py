@@ -65,7 +65,7 @@ class RPGCommands(commands.Cog):
                         request["invPage"] = request["invPage"]+1
                         eligible = True
 
-            if r["inUse"]:
+            if request["inUse"]:
                 eligible = False
 
             if eligible:

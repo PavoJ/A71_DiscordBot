@@ -35,7 +35,7 @@ class DiscordBot(commands.Bot):
         # self._bot.remove_command('help')
         self.add_cog(CurrencyCommands())
         self.add_cog(EventCommands())
-        self.add_cog(RPGCommands())
+        #self.add_cog(RPGCommands())
 
         @self.event
         async def on_ready():
