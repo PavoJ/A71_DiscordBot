@@ -71,7 +71,7 @@ class DBHandler:
 
     @RowToNamedTuple
     def getTable(self, table_name):
-        cur  = self._connection.cursor(named_tuple=True)
+        cur  = self._connection.cursor()#named_tuple=True)
         cur.execute(f"SELECT * FROM {table_name}")
 
         ret = cur.fetchall()
