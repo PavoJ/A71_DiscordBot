@@ -15,14 +15,14 @@ class RPGCommands(commands.Cog):
 
         if subj == "show" or subj == "mostra":
             if n_obj is not None:
-                await ctx.send(pRequester.getItem(n_obj))
+                await ctx.send(pRequester.inventory.getItem(n_obj))
             else:
                 try:
-                    message = await ctx.send(pRequester.getInvPage(0))
+                    message = await ctx.send(pRequester.inventory.getInvPage(0))
                 except discord.DiscordException as e:
                     print(f"cannot display inventory: {e}")
 
-                if len(pRequester.inventory) != 0:
+                if len(pRequester.inventory.inv_items) != 0:
                     await message.add_reaction('⬅')
                     await message.add_reaction('➡')
 
@@ -61,7 +61,7 @@ class RPGCommands(commands.Cog):
                     except discord.DiscordException as e:
                         print(f"error: {e}")
 
-                    if len(pRequester.inventory)//pRequester.pagelen+1 > request["invPage"]+1:
+                    if len(pRequester.inventory.inv_items)//pRequester.inventory.page_len+1 > request["invPage"]+1:
                         request["invPage"] = request["invPage"]+1
                         eligible = True
 
@@ -74,7 +74,7 @@ class RPGCommands(commands.Cog):
 
 
         if eligible:
-            page = request["requester"]["player"].getInvPage(request["invPage"])
+            page = request["requester"]["player"].inv_items.getInvPage(request["invPage"])
             await request["message"].edit(content=page)
             request["inUse"] = False
 
