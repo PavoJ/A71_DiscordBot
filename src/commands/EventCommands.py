@@ -17,7 +17,7 @@ class EventCommands(commands.Cog):
         elif subj == "reaction" and what == "add" or subj == "reazione" and what == "aggiungi":
             await self.reaction_set(ctx, ctx.message.author.id)
         elif subj == "reaction" and what == "remove" or subj == "reazione" and what == "rimuovi":
-            pass
+            pass# todo add reaction removal
 
     # resetting an event (converting each user's event currency to shards)
 
@@ -72,3 +72,4 @@ class EventCommands(commands.Cog):
                     "userdata",
                     "userID", p.user_id,
                     "valuta_evento", player_entry.valuta_evento+1)
+                return

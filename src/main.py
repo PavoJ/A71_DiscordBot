@@ -1,5 +1,6 @@
 import DiscordBot
 
+
 def main():
     dsBot = DiscordBot.DiscordBot()
     dsBot.dsbotstart()
